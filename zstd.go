@@ -62,7 +62,7 @@ type ZstdDecoder struct {
 	ctx *C.ZstdDCtxWithBuffer
 }
 
-func NewZstdDecoder(multiplier int) (*ZstdDecoder, error) {
+func NewDecoder(multiplier int) (*ZstdDecoder, error) {
 	ctx := C.zstd_create_ctx(C.size_t(multiplier))
 	if ctx == nil {
 		return nil, errors.New("zstd: failed to create context")

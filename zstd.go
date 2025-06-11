@@ -197,11 +197,9 @@ func (d *ZstdDecoder) Decompress(data []byte) ([]byte, error) {
 		}
 		results = append(results, chunk...)
 		if done {
-			break
+			return results, nil
 		}
 	}
-
-	return results, nil
 }
 
 func (d *ZstdDecoder) streamDecompress(data []byte, offset *int) (chunk []byte, done bool, err error) {

@@ -148,10 +148,6 @@ import (
 	"unsafe"
 )
 
-var (
-	maxValue = C.size_t(^uint(0))
-)
-
 type ZstdDecoder struct {
 	ctx *C.ZstdDCtxWithBuffer
 }

@@ -96,7 +96,10 @@ static size_t zstd_stream_decompress(ZstdDCtxWithBuffer* ctx,
 
     size_t ret = ZSTD_decompressStream(ctx->dctx, &ctx->out, &in);
 
-	if (ctx->out.pos == ctx->outCap && ret != 0) {
+	int made_forward_progress = in.pos > offset || ctx->out.pos > 0;
+    int fully_processed_input = in.pos == in.size;
+
+	if (ctx->out.pos == ctx->outCap && !fully_processed_input) {
 		size_t newCap = ctx->outCap * 2;
 		if (newCap < ctx->outCap+ret) {
 			newCap = ctx->outCap + ret;
@@ -110,9 +113,6 @@ static size_t zstd_stream_decompress(ZstdDCtxWithBuffer* ctx,
 
 		debug_printf("[zstd_stream_decompress] Buffer resize to %zu\n", newCap);
 	}
-
-	int made_forward_progress = in.pos > offset || ctx->out.pos > 0;
-    int fully_processed_input = in.pos == in.size;
 
 	if (ret == 0 || (!made_forward_progress && fully_processed_input)) {
 		*done = 1;

@@ -176,6 +176,16 @@ func SetDebug(enabled bool) {
 	C.set_debug(flag)
 }
 
+func SetShrink(enabled bool) {
+	var flag C.int
+	if enabled {
+		flag = 1
+	} else {
+		flag = 0
+	}
+	C.set_shrink(flag)
+}
+
 func (d *ZstdDecoder) Close() {
 	C.zstd_free_ctx(d.ctx)
 }

@@ -203,6 +203,10 @@ func (d *ZstdDecoder) Decompress(data []byte) ([]byte, error) {
 }
 
 func (d *ZstdDecoder) streamDecompress(data []byte, offset *int) (chunk []byte, done bool, err error) {
+	if len(data) == 0 {
+		return nil, false, errors.New("zstd: empty data")
+	}
+
 	var cdone C.int
 	var cerror *C.char
 

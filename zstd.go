@@ -160,6 +160,7 @@ type ZstdDecoder struct {
 	cancel context.CancelFunc
 	closed chan struct{}
 	once   sync.Once
+	mu     sync.RWMutex
 }
 
 func NewDecoder() (*ZstdDecoder, error) {
@@ -193,8 +194,13 @@ func NewDecoderCtx(parent context.Context) (*ZstdDecoder, error) {
 
 func (d *ZstdDecoder) Close() {
 	d.once.Do(func() {
+		d.mu.Lock()
+		defer d.mu.Unlock()
+
 		d.cancel()
 		C.zstd_free_ctx(d.ctx)
+
+		d.ctx = nil
 		close(d.closed)
 	})
 }
@@ -236,6 +242,13 @@ func (d *ZstdDecoder) Decompress(data []byte) ([]byte, error) {
 }
 
 func (d *ZstdDecoder) streamDecompress(data []byte, offset *int) (chunk []byte, done bool, err error) {
+	d.mu.RLock()
+	defer d.mu.RUnlock()
+
+	if d.ctx == nil {
+		return nil, false, errors.New("zstd: context is closed")
+	}
+
 	if len(data) == 0 {
 		return nil, false, errors.New("zstd: empty data")
 	}

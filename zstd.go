@@ -143,6 +143,7 @@ static size_t zstd_stream_decompress(ZstdDCtxWithBuffer* ctx,
 */
 import "C"
 import (
+	"context"
 	"errors"
 	"fmt"
 	"unsafe"
@@ -155,6 +156,18 @@ type Decompressor interface {
 
 type ZstdDecoder struct {
 	ctx *C.ZstdDCtxWithBuffer
+}
+
+func NewDecoderCtx(ctx context.Context) (*ZstdDecoder, error) {
+	decoder, err := NewDecoder()
+	if err == nil {
+		go func() {
+			<-ctx.Done()
+			decoder.Close()
+		}()
+	}
+
+	return decoder, err
 }
 
 func NewDecoder() (*ZstdDecoder, error) {

@@ -146,6 +146,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"sync"
 	"unsafe"
 )
 
@@ -155,29 +156,47 @@ type Decompressor interface {
 }
 
 type ZstdDecoder struct {
-	ctx *C.ZstdDCtxWithBuffer
-}
-
-func NewDecoderCtx(ctx context.Context) (*ZstdDecoder, error) {
-	decoder, err := NewDecoder()
-	if err == nil {
-		go func() {
-			<-ctx.Done()
-			decoder.Close()
-		}()
-	}
-
-	return decoder, err
+	ctx    *C.ZstdDCtxWithBuffer
+	cancel context.CancelFunc
+	closed chan struct{}
+	once   sync.Once
 }
 
 func NewDecoder() (*ZstdDecoder, error) {
-	ctx := C.zstd_create_ctx()
-	if ctx == nil {
+	return NewDecoderCtx(context.Background())
+}
+
+func NewDecoderCtx(parent context.Context) (*ZstdDecoder, error) {
+	cCtx := C.zstd_create_ctx()
+	if cCtx == nil {
 		return nil, errors.New("zstd: failed to create context")
 	}
-	decoder := &ZstdDecoder{ctx: ctx}
+
+	ctx, cancel := context.WithCancel(parent)
+
+	decoder := &ZstdDecoder{
+		ctx:    cCtx,
+		cancel: cancel,
+		closed: make(chan struct{}),
+	}
+
+	go func() {
+		select {
+		case <-ctx.Done():
+			decoder.Close()
+		case <-decoder.closed:
+		}
+	}()
 
 	return decoder, nil
+}
+
+func (d *ZstdDecoder) Close() {
+	d.once.Do(func() {
+		d.cancel()
+		C.zstd_free_ctx(d.ctx)
+		close(d.closed)
+	})
 }
 
 func SetDebug(enabled bool) {
@@ -198,10 +217,6 @@ func SetShrink(enabled bool) {
 		flag = 0
 	}
 	C.set_shrink(flag)
-}
-
-func (d *ZstdDecoder) Close() {
-	C.zstd_free_ctx(d.ctx)
 }
 
 func (d *ZstdDecoder) Decompress(data []byte) ([]byte, error) {

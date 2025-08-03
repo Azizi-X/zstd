@@ -1,0 +1,4 @@
+github.com/Azizi-X/zstd v0.0.0-20250616200632-7e62e0eec8d1 h1:QwDU41Zyf+mZqUd/Hs98RaJa6SIZsYqSjRx/A15M3Is=
+github.com/Azizi-X/zstd v0.0.0-20250616200632-7e62e0eec8d1/go.mod h1:2uepZqGWLiTtExtuuvvYHDW5keYpd/nfHmbhudy12xA=
+github.com/klauspost/compress v1.18.0 h1:c/Cqfb0r+Yi+JtIEq73FWXVkRonBlf0CRNYc8Zttxdo=
+github.com/klauspost/compress v1.18.0/go.mod h1:2Pp+KzxcywXVXMr50+X0Q/Lsb43OQHYWRCY2AiWywWQ=

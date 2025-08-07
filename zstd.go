@@ -145,7 +145,6 @@ import "C"
 import (
 	"context"
 	"errors"
-	"fmt"
 	"sync"
 	"unsafe"
 )
@@ -232,7 +231,7 @@ func (d *ZstdDecoder) Decompress(data []byte) ([]byte, error) {
 	for {
 		chunk, done, err := d.streamDecompress(data, &offset)
 		if err != nil {
-			return nil, fmt.Errorf("zstd: decompression error: %w", err)
+			return nil, err
 		}
 		results = append(results, chunk...)
 		if done {

@@ -149,11 +149,6 @@ import (
 	"unsafe"
 )
 
-type Decompressor interface {
-	Decompress([]byte) ([]byte, error)
-	Close()
-}
-
 type ZstdDecoder struct {
 	ctx    *C.ZstdDCtxWithBuffer
 	cancel context.CancelFunc

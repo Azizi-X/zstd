@@ -1,11 +1,10 @@
 package zstd
 
 /*
-#cgo LDFLAGS: -lzstd
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
-#include <zstd.h>
+#include "zstd.h"
 
 typedef struct {
     ZSTD_DCtx*     dctx;
@@ -139,7 +138,6 @@ static size_t zstd_stream_decompress(ZstdDCtxWithBuffer* ctx,
 
     return in.pos;
 }
-
 */
 import "C"
 import (

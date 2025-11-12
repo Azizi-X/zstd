@@ -4,6 +4,7 @@ package zstd
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
+#define ZSTD_STATIC_LINKING_ONLY
 #include "zstd.h"
 
 typedef struct {
@@ -49,6 +50,9 @@ static ZstdDCtxWithBuffer* zstd_create_ctx() {
         free(ctx);
         return NULL;
     }
+
+	ZSTD_DCtx_setParameter(ctx->dctx, ZSTD_d_forceIgnoreChecksum, 1);
+	ZSTD_DCtx_setParameter(ctx->dctx, ZSTD_d_format, ZSTD_f_zstd1);
 
     ctx->outBuf = malloc(outCap);
     ctx->outCap = outCap;
